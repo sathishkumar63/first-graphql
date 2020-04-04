@@ -1,9 +1,4 @@
 {
-	"singleQuote": true,
-	"overrides": [{
-		"files": "*.ts",
-		"options": {
-			"parser": "typescript"
-		}
-	}]
+  "singleQuote": true,
+  "trailingComma": "none"
 }
