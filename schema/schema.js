@@ -52,8 +52,9 @@ const employees = [
   },
 ];
 
+// Define the Employee type
 const EmployeeType = new GraphQLObjectType({
-  name: 'employee',
+  name: 'Employee',
   fields: {
     id: { type: GraphQLString },
     employee_name: { type: GraphQLString },
@@ -62,11 +63,13 @@ const EmployeeType = new GraphQLObjectType({
   },
 });
 
-const RootQuery = new GraphQLObjectType({
-  name: 'rootQuery',
+// Define the Root Query type
+const RootQueryType = new GraphQLObjectType({
+  name: 'RootQuery',
   fields: {
     employee: {
       type: EmployeeType,
+      // `args` describes the arguments that the `employee` query accepts
       args: {
         id: { type: GraphQLString },
       },
@@ -78,5 +81,5 @@ const RootQuery = new GraphQLObjectType({
 });
 
 module.exports = new GraphQLSchema({
-  query: RootQuery,
+  query: RootQueryType,
 });
