@@ -1,5 +1,12 @@
 const graphql = require('graphql');
-const { GraphQLObjectType, GraphQLString, GraphQLInt, GraphQLSchema } = graphql;
+const {
+  GraphQLObjectType,
+  GraphQLString,
+  GraphQLInt,
+  GraphQLSchema,
+  GraphQLList,
+  GraphQLNonNull,
+} = graphql;
 
 const employees = [
   {
@@ -55,25 +62,41 @@ const employees = [
 // Define the Employee type
 const EmployeeType = new GraphQLObjectType({
   name: 'Employee',
+  description: 'get the particular employee',
   fields: {
-    id: { type: GraphQLString },
-    employee_name: { type: GraphQLString },
-    employee_salary: { type: GraphQLString },
-    employee_age: { type: GraphQLInt },
+    id: {
+      type: new GraphQLNonNull(GraphQLString),
+      description: 'The id of the employee.',
+    },
+    employee_name: {
+      type: GraphQLString,
+      description: 'The name of the employee.',
+    },
+    employee_salary: {
+      type: GraphQLString,
+      description: 'The salary of the employee.',
+    },
+    employee_age: { type: GraphQLInt, description: 'The age of the employee.' },
   },
 });
 
 // Define the Root Query type
 const RootQueryType = new GraphQLObjectType({
   name: 'RootQuery',
+  description: 'The root of all queries',
   fields: {
+    allEmployee: {
+      type: new GraphQLList(EmployeeType),
+      resolve: (root) => employees,
+    },
     employee: {
       type: EmployeeType,
       // `args` describes the arguments that the `employee` query accepts
       args: {
-        id: { type: GraphQLString },
+        id: { type: new GraphQLNonNull(GraphQLString) },
       },
-      resolve(parent, args) {
+      resolve(root, args) {
+        // Fetch the employee with Id `args.id`,
         return employees.find((emp) => emp.id === args.id);
       },
     },
