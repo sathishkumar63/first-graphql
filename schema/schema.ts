@@ -4,59 +4,57 @@ import {
   GraphQLInt,
   GraphQLSchema,
   GraphQLList,
-  GraphQLNonNull
+  GraphQLNonNull,
+  GraphQLInputObjectType
 } from 'graphql';
 
 const employees = [
   {
-    id: '1',
-    employee_name: 'Tiger Nixon',
+    id: 1,
+    employee_name: 'SathishKumar',
     employee_salary: '320800',
-    employee_age: 61
+    employee_age: 24
   },
   {
-    id: '2',
-    employee_name: 'Garrett Winters',
+    id: 2,
+    employee_name: 'Samson',
     employee_salary: '170750',
-    employee_age: 63
+    employee_age: 21
   },
   {
-    id: '3',
-    employee_name: 'Ashton Cox',
+    id: 3,
+    employee_name: 'David',
     employee_salary: '86000',
-    employee_age: 66
+    employee_age: 19
   },
   {
-    id: '4',
-    employee_name: 'Cedric Kelly',
+    id: 4,
+    employee_name: 'Selvaraj',
     employee_salary: '433060',
-    employee_age: 22
+    employee_age: 49
   },
   {
-    id: '5',
-    employee_name: 'Airi Satou',
+    id: 5,
+    employee_name: 'Steve Smith',
     employee_salary: '162700',
-    employee_age: 33
-  },
-  {
-    id: '6',
-    employee_name: 'Brielle Williamson',
-    employee_salary: '372000',
-    employee_age: 61
-  },
-  {
-    id: '7',
-    employee_name: 'Herrod Chandler',
-    employee_salary: '137500',
-    employee_age: 59
-  },
-  {
-    id: '8',
-    employee_name: 'Rhona Davidson',
-    employee_salary: '327900',
-    employee_age: 55
+    employee_age: 30
   }
 ];
+
+const inputEmployeeType = new GraphQLInputObjectType({
+  name: 'EmployeeInput',
+  fields: {
+    employee_name: {
+      type: new GraphQLNonNull(GraphQLString)
+    },
+    employee_salary: {
+      type: new GraphQLNonNull(GraphQLString)
+    },
+    employee_age: {
+      type: new GraphQLNonNull(GraphQLInt)
+    }
+  }
+});
 
 // Define the Employee type
 const EmployeeType = new GraphQLObjectType({
@@ -64,7 +62,7 @@ const EmployeeType = new GraphQLObjectType({
   description: 'get the particular employee',
   fields: {
     id: {
-      type: new GraphQLNonNull(GraphQLString),
+      type: new GraphQLNonNull(GraphQLInt),
       description: 'The id of the employee.'
     },
     employee_name: {
@@ -92,7 +90,7 @@ const RootQueryType = new GraphQLObjectType({
       type: EmployeeType,
       // `args` describes the arguments that the `employee` query accepts
       args: {
-        id: { type: new GraphQLNonNull(GraphQLString) }
+        id: { type: new GraphQLNonNull(GraphQLInt) }
       },
       resolve(root, args) {
         // Fetch the employee with Id `args.id`,
@@ -105,26 +103,50 @@ const RootQueryType = new GraphQLObjectType({
 // Define the Mutation query type
 
 const MutationQueryType = new GraphQLObjectType({
-  name: 'RootMutationType',
+  name: 'MutationQuery',
   description: 'The root of add, update and delete queries',
   fields: {
-    updateEmployee: {
-      type: EmployeeType,
-      description: 'Update the employee'
-    },
-    deleteEmployee: {
-      type: EmployeeType,
-      description: 'Delete the employee'
-    },
+    // updateEmployee: {
+    //   type: EmployeeType,
+    //   description: 'Update the employee'
+    // },
+    // deleteEmployee: {
+    //   type: EmployeeType,
+    //   description: 'Delete the employee'
+    // },
     addEmployee: {
       type: EmployeeType,
-      description: 'Create the employee'
+      description: 'Create the employee',
+      /* define the arguments that we should pass to the mutation here
+      we require both employee name, salary and age. the id will be generated automatically */
+      args: {
+        input: { type: new GraphQLNonNull(inputEmployeeType) }
+      },
+      resolve: (root, args) => {
+        const employeeExists = employees.some(
+          (employee) => employee.employee_name === args.input.employee_name
+        );
+        if (employeeExists) {
+          throw new Error('Employee already exist!');
+        } else {
+          const employee = {
+            id: employees.length + 1,
+            employee_name: args.input.employee_name,
+            employee_salary: args.input.employee_salary,
+            employee_age: args.input.employee_age
+          };
+          employees.push(employee);
+          return employee;
+        }
+      }
     }
   }
 });
 
+// Define the Schema
 const schema = new GraphQLSchema({
-  query: RootQueryType
+  query: RootQueryType,
+  mutation: MutationQueryType
 });
 
 export default schema;
