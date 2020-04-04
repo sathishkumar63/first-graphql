@@ -2,7 +2,7 @@ import express from 'express';
 import graphqlHTTP from 'express-graphql';
 import schema from './schema/schema';
 
-// setting up the port number and express app
+// Setup the port number and express app
 const port = 3000;
 const app = express();
 
