@@ -43,15 +43,19 @@ const employees = [
 
 const inputEmployeeType = new GraphQLInputObjectType({
   name: 'EmployeeInput',
+  description: 'required inputs for creating employee',
   fields: {
     employee_name: {
-      type: new GraphQLNonNull(GraphQLString)
+      type: new GraphQLNonNull(GraphQLString),
+      description: 'The name of the employee.'
     },
     employee_salary: {
-      type: new GraphQLNonNull(GraphQLString)
+      type: new GraphQLNonNull(GraphQLString),
+      description: 'The salary of the employee.'
     },
     employee_age: {
-      type: new GraphQLNonNull(GraphQLInt)
+      type: new GraphQLNonNull(GraphQLInt),
+      description: 'The age of the employee.'
     }
   }
 });
@@ -80,7 +84,7 @@ const EmployeeType = new GraphQLObjectType({
 // Define the Root Query type
 const RootQueryType = new GraphQLObjectType({
   name: 'RootQuery',
-  description: 'The root of getAll and get queries',
+  description: 'The root of getAll and get employee queries',
   fields: {
     allEmployee: {
       type: new GraphQLList(EmployeeType),
@@ -110,10 +114,28 @@ const MutationQueryType = new GraphQLObjectType({
     //   type: EmployeeType,
     //   description: 'Update the employee'
     // },
-    // deleteEmployee: {
-    //   type: EmployeeType,
-    //   description: 'Delete the employee'
-    // },
+    deleteEmployee: {
+      type: EmployeeType,
+      description: 'Delete the employee',
+      args: {
+        id: {
+          type: new GraphQLNonNull(GraphQLInt),
+          description: 'The id of the employee.'
+        }
+      },
+      resolve: (root, args) => {
+        const isEmployeeExists = employees.findIndex(
+          (employee) => employee.id === args.id
+        );
+        if (isEmployeeExists === -1) {
+          throw new Error('Employee does not exist!');
+        } else {
+          // splice will return the removed items from the array object
+          const deletedEmployee = employees.splice(isEmployeeExists, 1);
+          return deletedEmployee[0];
+        }
+      }
+    },
     addEmployee: {
       type: EmployeeType,
       description: 'Create the employee',
