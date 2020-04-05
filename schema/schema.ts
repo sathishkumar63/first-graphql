@@ -98,7 +98,12 @@ const RootQueryType = new GraphQLObjectType({
       },
       resolve(root, args) {
         // Fetch the employee with Id `args.id`,
-        return employees.find((emp) => emp.id === args.id);
+        const employee = employees.find((emp) => emp.id === args.id);
+        if (!employee) {
+          throw new Error('Employee does not exist!');
+        } else {
+          return employee;
+        }
       }
     }
   }
@@ -110,10 +115,45 @@ const MutationQueryType = new GraphQLObjectType({
   name: 'MutationQuery',
   description: 'The root of add, update and delete queries',
   fields: {
-    // updateEmployee: {
-    //   type: EmployeeType,
-    //   description: 'Update the employee'
-    // },
+    updateEmployee: {
+      type: EmployeeType,
+      description: 'Update the employee',
+      args: {
+        id: {
+          type: new GraphQLNonNull(GraphQLInt),
+          description: 'The id of the employee.'
+        },
+        employee_name: {
+          type: GraphQLString,
+          description: 'The name of the employee.'
+        },
+        employee_salary: {
+          type: GraphQLString,
+          description: 'The salary of the employee.'
+        },
+        employee_age: {
+          type: GraphQLInt,
+          description: 'The age of the employee.'
+        }
+      },
+      resolve: (root, args) => {
+        const employee = employees.find((emp) => emp.id === args.id);
+        if (!employee) {
+          throw new Error('Employee does not exist!');
+        } else {
+          if (typeof args.employee_name === 'string') {
+            employee.employee_name = args.employee_name;
+          }
+          if (typeof args.employee_salary === 'string') {
+            employee.employee_salary = args.employee_salary;
+          }
+          if (typeof args.employee_age === 'number') {
+            employee.employee_age = args.employee_age;
+          }
+          return employee;
+        }
+      }
+    },
     deleteEmployee: {
       type: EmployeeType,
       description: 'Delete the employee',
